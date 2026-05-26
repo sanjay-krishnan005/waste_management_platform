@@ -1,0 +1,23 @@
+{
+  "name": "sortyx-intelligence-platform",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@sortyx/web",
+    "dev:bridge": "npm run dev --workspace=@sortyx/mqtt-bridge",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspace=@sortyx/web"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "next": "^14.2.35",
+    "sonner": "^2.0.7"
+  }
+}

@@ -1,0 +1,19 @@
+[project]
+id = "sortyx-intelligence-platform"
+
+[api]
+enabled = true
+port = 54321
+
+[db]
+port = 54322
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+
+[realtime]
+enabled = true

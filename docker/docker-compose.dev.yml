@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - ../apps/web/.env.local
+    depends_on:
+      - mqtt-bridge
+
+  mqtt-bridge:
+    build:
+      context: ..
+      dockerfile: services/mqtt-bridge/Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - ../services/mqtt-bridge/.env
