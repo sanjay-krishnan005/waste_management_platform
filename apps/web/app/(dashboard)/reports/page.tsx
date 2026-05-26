@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { FileText, Download, Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -37,39 +38,60 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-3xl font-bold">Reports</h1>
-        <p className="text-muted-foreground">Generate and export bin performance reports</p>
+        <h1>Reports</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Generate and export bin performance reports</p>
       </div>
-      <Card className="max-w-lg">
-        <CardHeader>
-          <CardTitle>Export report</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Period</Label>
-            <Select value={period} onValueChange={(v) => setPeriod(v as typeof period)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="daily">Daily</SelectItem>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex gap-3">
-            <Button disabled={loading} onClick={() => exportReport("csv")}>
-              Export CSV
-            </Button>
-            <Button variant="outline" disabled={loading} onClick={() => exportReport("pdf")}>
-              Export PDF
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 md:grid-cols-2 max-w-3xl">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <CardTitle>Export Report</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-xs">Period</Label>
+              <Select value={period} onValueChange={(v) => setPeriod(v as typeof period)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-3">
+              <Button disabled={loading} onClick={() => exportReport("csv")}>
+                {loading ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Download className="mr-1.5 h-4 w-4" />}
+                Export CSV
+              </Button>
+              <Button variant="outline" disabled={loading} onClick={() => exportReport("pdf")}>
+                {loading ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Download className="mr-1.5 h-4 w-4" />}
+                Export PDF
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Report Info</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground space-y-2">
+            <p>Reports include data for all bins in your organization.</p>
+            <ul className="list-disc list-inside text-xs space-y-1">
+              <li><strong>Daily</strong>: Last 24 hours</li>
+              <li><strong>Weekly</strong>: Last 7 days</li>
+              <li><strong>Monthly</strong>: Last 30 days</li>
+            </ul>
+            <p className="text-xs">CSV includes device ID, location, status, average fill %, and data points. PDF includes formatted tables with alert counts.</p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

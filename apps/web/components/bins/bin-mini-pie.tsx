@@ -15,15 +15,15 @@ export function BinMiniPie({ compartments }: { compartments: { label: string; cu
 
   return (
     <div className="flex items-center gap-2">
-      <div className="h-10 w-10 flex-shrink-0">
+      <div className="h-8 w-8 flex-shrink-0">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius={12}
-              outerRadius={18}
+              innerRadius={8}
+              outerRadius={14}
               dataKey="value"
               strokeWidth={0}
             >
@@ -34,10 +34,10 @@ export function BinMiniPie({ compartments }: { compartments: { label: string; cu
           </PieChart>
         </ResponsiveContainer>
       </div>
-      <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-xs">
+      <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-muted-foreground">
         {data.map((d) => (
           <span key={d.name} className="flex items-center gap-1">
-            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: d.color }} />
+            <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: d.color }} />
             {d.name}
           </span>
         ))}

@@ -24,7 +24,7 @@ export default async function DashboardPage() {
 
   const { data: alerts } = await supabase
     .from("alerts")
-    .select("id, alert_type, severity, message, created_at, bins(device_id)")
+    .select("id, alert_type, severity, message, created_at, acknowledged_at, resolved_at, bins(device_id)")
     .is("resolved_at", null)
     .order("created_at", { ascending: false })
     .limit(5);

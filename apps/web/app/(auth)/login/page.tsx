@@ -43,33 +43,39 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <Image src="/logo.png" alt="Sortyx" width={48} height={48} className="mx-auto mb-4 rounded-lg" />
-          <CardTitle>Sign in to Sortyx</CardTitle>
-          <CardDescription>Intelligence Platform</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign in"}
-            </Button>
-          </form>
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            <Link href="/" className="hover:underline">Back to home</Link>
-          </p>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen flex items-center justify-center bg-muted/20 p-4">
+      <div className="w-full max-w-sm animate-scale-in">
+        <div className="text-center mb-8">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl">
+            <Image src="/logo.png" alt="Sortyx" width={44} height={44} className="object-contain" />
+          </div>
+          <h1 className="text-xl font-semibold">Welcome back</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Sign in to your Sortyx account</p>
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password" required />
+              </div>
+              {error && (
+                <p className="text-xs text-destructive bg-destructive/10 rounded-md p-2">{error}</p>
+              )}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Signing in..." : "Sign in"}
+              </Button>
+            </form>
+            <p className="mt-6 text-center text-xs text-muted-foreground">
+              <Link href="/" className="hover:text-foreground transition-colors">Back to home</Link>
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
