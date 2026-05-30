@@ -20,8 +20,8 @@ import QRCode from "qrcode";
 const LocationPicker = dynamic(() => import("./location-picker"), { ssr: false });
 
 const COMPARTMENT_LABELS: Record<string, string[]> = {
-  two: ["Recyclables", "General Waste"],
-  four: ["Plastic", "Paper", "Metal/Glass", "Organic"],
+  two: ["Recyclable", "Non-Recyclable"],
+  four: ["Plastic", "General", "Paper", "Metal"],
 };
 
 const UNASSIGNED_CUSTOMER = "__unassigned__";

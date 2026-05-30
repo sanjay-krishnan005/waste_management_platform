@@ -131,16 +131,14 @@ async function processTelemetry(topic: string, payload: Buffer) {
   await supabase.from("bins").update(updatePayload).eq("id", bin.id);
 
   for (const comp of data.compartments) {
-    await supabase
-      .from("bin_compartments")
-      .update({
-        current_fill_level: comp.fillLevel,
-        current_weight_kg: comp.weightKg ?? 0,
-        waste_count: comp.wasteCount ?? 0,
-        classification: comp.classification ?? {},
-      })
-      .eq("bin_id", bin.id)
-      .eq("compartment_index", comp.index);
+    await supabase.rpc("upsert_compartment", {
+      p_bin_id: bin.id,
+      p_compartment_index: comp.index,
+      p_fill_level: comp.fillLevel,
+      p_weight_kg: comp.weightKg ?? 0,
+      p_waste_count: comp.wasteCount ?? 0,
+      p_classification: comp.classification ?? {},
+    });
   }
 
   await supabase.from("activity_log").insert({
