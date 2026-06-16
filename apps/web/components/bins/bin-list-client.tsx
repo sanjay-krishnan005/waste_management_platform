@@ -99,6 +99,10 @@ export function BinListClient({
     if (existing.length > 0) return existing;
     const labels = bin.bin_type === "four"
       ? ["Plastic", "Paper", "Metal/Glass", "Organic"]
+      : bin.bin_type === "three"
+      ? ["Recyclable", "Non-Recyclable", "Food Waste"]
+      : bin.bin_type === "one"
+      ? ["Recyclable"]
       : ["Recyclables", "General Waste"];
     return labels.map((label, i) => ({
       label,
@@ -239,7 +243,7 @@ export function BinListClient({
 
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span className="inline-flex items-center gap-1">
-                        {bin.bin_type === "two" ? "2-bin" : "4-bin"}
+                        {bin.bin_type === "one" ? "1-bin" : bin.bin_type === "two" ? "2-bin" : bin.bin_type === "three" ? "3-bin" : "4-bin"}
                       </span>
                       <span className="text-border">·</span>
                       <span>{customerName}</span>
@@ -291,7 +295,7 @@ export function BinListClient({
                       <Badge variant={cfg.variant} className="text-[10px]">{cfg.label}</Badge>
                     </td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">{bin.location_name ?? "—"}</td>
-                    <td className="px-4 py-3 text-xs">{bin.bin_type === "two" ? "2-bin" : "4-bin"}</td>
+                    <td className="px-4 py-3 text-xs">{bin.bin_type === "one" ? "1-bin" : bin.bin_type === "two" ? "2-bin" : bin.bin_type === "three" ? "3-bin" : "4-bin"}</td>
                     <td className="px-4 py-3 text-xs">{((bin.customers as unknown) as { name: string } | null)?.name ?? "Unassigned"}</td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">
                       {bin.last_seen_at ? formatRelativeTime(bin.last_seen_at) : "—"}
@@ -318,7 +322,11 @@ export function BinListClient({
                               <Pencil className="h-3.5 w-3.5" />
                             </Link>
                           </Button>
-                          <DeleteButton id={bin.id} path="bins" />
+                          <DeleteButton
+                            id={bin.id}
+                            path="bins"
+                            description={`Permanently delete bin ${bin.device_id} and all its compartments, telemetry history, and alerts. This cannot be undone.`}
+                          />
                         </div>
                       </td>
                     )}

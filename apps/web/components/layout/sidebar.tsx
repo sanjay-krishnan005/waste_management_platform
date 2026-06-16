@@ -65,11 +65,11 @@ export function Sidebar({ profile }: { profile: Profile }) {
   return (
     <aside
       className={cn(
-        "relative flex h-full flex-col border-r bg-card sidebar-shadow transition-all duration-200",
+        "relative z-10 flex h-full flex-col glass transition-all duration-200",
         collapsed ? "w-14" : "w-60"
       )}
     >
-      <div className={cn("flex h-14 items-center border-b", collapsed ? "justify-center px-0" : "gap-2.5 px-4")}>
+      <div className={cn("flex h-14 items-center border-b border-white/10 dark:border-white/5", collapsed ? "justify-center px-0" : "gap-2.5 px-4")}>
         <div className="relative h-7 w-7 shrink-0">
           <Image src="/logo.png" alt="Sortyx" fill className="object-contain" />
         </div>
@@ -102,7 +102,7 @@ export function Sidebar({ profile }: { profile: Profile }) {
         })}
       </nav>
 
-      <div className={cn("border-t p-2 space-y-1", collapsed && "flex flex-col items-center")}>
+      <div className={cn("border-t border-white/10 dark:border-white/5 p-2 space-y-1", collapsed && "flex flex-col items-center")}>
         <div className={cn("flex items-center", collapsed ? "flex-col gap-1" : "gap-2 px-2 py-1.5")}>
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary text-[10px] font-semibold text-secondary-foreground">
             {(profile.full_name ?? profile.email).charAt(0).toUpperCase()}

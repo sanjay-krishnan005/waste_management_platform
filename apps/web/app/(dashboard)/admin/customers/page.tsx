@@ -67,7 +67,11 @@ export default async function CustomersPage() {
                           <Pencil className="h-3.5 w-3.5" />
                         </Link>
                       </Button>
-                      <DeleteButton id={c.id} path="admin/customers" />
+                      <DeleteButton
+                        id={c.id}
+                        path="admin/customers"
+                        description={`Permanently delete ${c.name} and all ${binList.length} assigned bin${binList.length !== 1 ? "s" : ""}. All bins, compartments, telemetry, and alerts will be lost. This cannot be undone.`}
+                      />
                     </div>
                   </div>
                 </CardHeader>

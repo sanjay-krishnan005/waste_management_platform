@@ -1,0 +1,17 @@
+# fly.toml for MQTT Bridge
+app = "sortyx-mqtt-bridge"
+primary_region = "bom"
+
+[build]
+  dockerfile = "services/mqtt-bridge/Dockerfile"
+  dockerbuild_context = "."
+
+[http_service]
+  internal_port = 8080
+  force_https = false
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+[env]
+  NODE_ENV = "production"

@@ -26,7 +26,9 @@ export default async function PortalBinsPage() {
   }
 
   const expectedLabels: Record<string, string[]> = {
+    one: ["Recyclable"],
     two: ["Recyclables", "General Waste"],
+    three: ["Recyclable", "Non-Recyclable", "Food Waste"],
     four: ["Plastic", "Paper", "Metal/Glass", "Organic"],
   };
 

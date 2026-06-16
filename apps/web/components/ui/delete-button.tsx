@@ -15,7 +15,7 @@ import {
 import { Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-export function DeleteButton({ id, path, label = "Delete" }: { id: string; path: string; label?: string }) {
+export function DeleteButton({ id, path, label = "Delete", description }: { id: string; path: string; label?: string; description?: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -49,7 +49,7 @@ export function DeleteButton({ id, path, label = "Delete" }: { id: string; path:
         <DialogHeader>
           <DialogTitle>Confirm deletion</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this {label}? This action cannot be undone.
+            {description ?? `Are you sure you want to delete this ${label}? This action cannot be undone.`}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2">

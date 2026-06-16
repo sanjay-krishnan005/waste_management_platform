@@ -32,7 +32,7 @@ function PieLabel({
   midAngle,
   innerRadius,
   outerRadius,
-  percent,
+  value,
   name,
 }: {
   cx: number;
@@ -40,7 +40,7 @@ function PieLabel({
   midAngle: number;
   innerRadius: number;
   outerRadius: number;
-  percent: number;
+  value: number;
   name: string;
 }) {
   const RADIAN = Math.PI / 180;
@@ -86,7 +86,7 @@ function PieLabel({
         fill="hsl(var(--muted-foreground))"
         fontSize={10}
       >
-        {`${(percent * 100).toFixed(1)}%`}
+        {`${value}%`}
       </text>
     </g>
   );
@@ -112,7 +112,7 @@ export function BinCompartmentPieChart({
   const chartData = compartments.map((comp) => ({
     name: comp.label,
     value: Math.round(comp.currentFillLevel * 10) / 10,
-    fill: COLORS[comp.compartmentIndex % COLORS.length],
+    fill: getFillHex(comp.currentFillLevel),
   }));
 
   const totalFill = chartData.reduce((sum, item) => sum + item.value, 0);
@@ -121,7 +121,7 @@ export function BinCompartmentPieChart({
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       {/* Pie Chart */}
-      <Card>
+      <Card variant="glass">
         <CardHeader>
           <CardTitle>Fill Levels</CardTitle>
           {hasData ? (
@@ -147,14 +147,14 @@ export function BinCompartmentPieChart({
                       paddingAngle={3}
                       dataKey="value"
                       strokeWidth={0}
-                      label={({ cx, cy, midAngle, innerRadius, outerRadius, percent, name }) => (
+                      label={({ cx, cy, midAngle, innerRadius, outerRadius, value, name }) => (
                         <PieLabel
                           cx={cx}
                           cy={cy}
                           midAngle={midAngle}
                           innerRadius={innerRadius}
                           outerRadius={outerRadius}
-                          percent={percent}
+                          value={value}
                           name={name}
                         />
                       )}
@@ -193,14 +193,14 @@ export function BinCompartmentPieChart({
       </Card>
 
       {/* Individual Vertical Bins */}
-      <Card>
+      <Card variant="glass">
         <CardHeader>
           <CardTitle>Compartment Breakdown</CardTitle>
           <CardDescription>Each compartment shown as its own bin</CardDescription>
         </CardHeader>
         <CardContent>
           {hasData ? (
-            <div className={cn("grid gap-6", compartments.length === 2 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-4")}>
+            <div className={cn("grid gap-6", compartments.length === 1 ? "grid-cols-1 max-w-[120px] mx-auto" : compartments.length === 2 ? "grid-cols-2" : compartments.length === 3 ? "grid-cols-3" : "grid-cols-2 sm:grid-cols-4")}>
               {compartments.map((comp) => {
                 const fill = comp.currentFillLevel;
                 const color = getFillHex(fill);

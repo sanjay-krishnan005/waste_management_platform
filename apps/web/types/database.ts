@@ -10,7 +10,7 @@ export interface Database {
           customer_id: string | null;
           device_id: string;
           serial_number: string;
-          bin_type: "two" | "four";
+          bin_type: "one" | "two" | "three" | "four";
           status: "active" | "maintenance" | "offline" | "decommissioned";
           latitude: number | null;
           longitude: number | null;

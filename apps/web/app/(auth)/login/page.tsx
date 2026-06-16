@@ -43,16 +43,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/20 p-4">
+    <div className="relative min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-sm animate-scale-in">
         <div className="text-center mb-8">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl glass">
             <Image src="/logo.png" alt="Sortyx" width={44} height={44} className="object-contain" />
           </div>
           <h1 className="text-xl font-semibold">Welcome back</h1>
           <p className="mt-1 text-sm text-muted-foreground">Sign in to your Sortyx account</p>
         </div>
-        <Card>
+        <Card variant="glass">
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">

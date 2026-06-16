@@ -32,7 +32,8 @@ export function KpiCards({ data }: { data: KpiData }) {
         const Icon = c.icon;
         const value = data[c.key];
         return (
-          <Card key={c.key} className="relative overflow-hidden">
+          <Card key={c.key} variant="glass" className="relative overflow-hidden">
+            <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
             <div className="p-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-muted-foreground">{c.title}</span>

@@ -202,7 +202,7 @@ export function RealtimeDashboard({
             </Button>
 
             {bellOpen && (
-              <div className="absolute right-0 top-full mt-2 w-[380px] origin-top-right rounded-lg border bg-card shadow-lg animate-scale-in z-50">
+              <div className="absolute right-0 top-full mt-2 w-[380px] origin-top-right rounded-lg border shadow-lg animate-scale-in z-50 glass-strong">
                 <div className="flex items-center justify-between border-b px-4 py-3">
                   <div className="flex items-center gap-2">
                     <Bell className="h-4 w-4 text-muted-foreground" />
@@ -332,7 +332,7 @@ export function RealtimeDashboard({
       {/* Map + Recent Activity side by side */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Map */}
-        <Card className="lg:col-span-2 overflow-hidden flex flex-col">
+        <Card variant="glass" className="lg:col-span-2 overflow-hidden flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between pb-3 shrink-0">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -360,7 +360,7 @@ export function RealtimeDashboard({
         </Card>
 
         {/* Recent Activity */}
-        <Card className="flex flex-col overflow-hidden">
+        <Card variant="glass" className="flex flex-col overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between pb-3 shrink-0">
             <div className="flex items-center gap-2">
               <ActivityIcon className="h-4 w-4 text-muted-foreground" />
@@ -404,7 +404,7 @@ export function RealtimeDashboard({
       </div>
 
       {/* Bins by Customer */}
-      <Card>
+      <Card variant="glass">
         <CardHeader className="flex flex-row items-center justify-between pb-3">
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />

@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { formatPercent, formatDate, formatRelativeTime, cn } from "@/lib/utils";
 import { BinCompartmentPieChart } from "./bin-compartment-pie-chart";
 import { BinCredentials } from "./bin-credentials";
+import { DeleteButton } from "@/components/ui/delete-button";
 import {
   LineChart,
   Line,
@@ -125,7 +126,9 @@ export function BinDetailView({
   const cfg = statusConfig[b.status] ?? { label: b.status, variant: "neutral" as const };
 
   const compartmentLabels: Record<string, string[]> = {
+    one: ["Recyclable"],
     two: ["Recyclable", "Non-Recyclable"],
+    three: ["Recyclable", "Non-Recyclable", "Food Waste"],
     four: ["Plastic", "General", "Paper", "Metal"],
   };
 
@@ -208,19 +211,26 @@ export function BinDetailView({
         </div>
         <div className="flex items-center gap-2">
           {role !== "customer" && (
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/bins/${bin.id}/edit`}>
-                <Pencil className="h-4 w-4 mr-1.5" />
-                Edit
-              </Link>
-            </Button>
+            <>
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/bins/${bin.id}/edit`}>
+                  <Pencil className="h-4 w-4 mr-1.5" />
+                  Edit
+                </Link>
+              </Button>
+              <DeleteButton
+                id={b.id}
+                path="bins"
+                description={`Permanently delete bin ${b.device_id} and all its compartments, telemetry history, and alerts. This cannot be undone.`}
+              />
+            </>
           )}
         </div>
       </div>
 
       {/* Quick Stats Row */}
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
-        <Card>
+        <Card variant="glass">
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground">Fill Level</p>
             <div className="mt-1 flex items-end gap-2">
@@ -236,7 +246,7 @@ export function BinDetailView({
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card variant="glass">
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground">Battery</p>
             <div className="mt-1 flex items-center gap-2">
@@ -247,7 +257,7 @@ export function BinDetailView({
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card variant="glass">
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground">Last Seen</p>
             <div className="mt-1 flex items-center gap-2">
@@ -258,12 +268,12 @@ export function BinDetailView({
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card variant="glass">
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground">Type</p>
             <div className="mt-1 flex items-center gap-2">
               <Layers className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-semibold">{b.bin_type === "two" ? "2-bin" : "4-bin"}</span>
+              <span className="text-sm font-semibold">{b.bin_type === "one" ? "1-bin" : b.bin_type === "two" ? "2-bin" : b.bin_type === "three" ? "3-bin" : "4-bin"}</span>
             </div>
           </CardContent>
         </Card>
@@ -271,7 +281,7 @@ export function BinDetailView({
 
       {/* Fill Level History + Health Monitoring */}
       <div className="grid gap-6 xl:grid-cols-3">
-        <Card className="xl:col-span-2">
+        <Card variant="glass" className="xl:col-span-2">
           <CardHeader>
             <CardTitle>Fill Level History</CardTitle>
           </CardHeader>
@@ -300,7 +310,7 @@ export function BinDetailView({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card variant="glass">
           <CardHeader>
             <CardTitle>Health Monitoring</CardTitle>
           </CardHeader>
@@ -321,7 +331,7 @@ export function BinDetailView({
 
       {/* Waste Count */}
       {displayCompartments.length > 0 && (
-        <Card>
+        <Card variant="glass">
           <CardHeader>
             <CardTitle>Waste Count</CardTitle>
           </CardHeader>
@@ -347,7 +357,7 @@ export function BinDetailView({
 
       {/* Camera Snapshot */}
       {b.snapshot_url && (
-        <Card>
+        <Card variant="glass">
           <CardHeader>
             <CardTitle>Camera Snapshot</CardTitle>
           </CardHeader>
@@ -358,7 +368,7 @@ export function BinDetailView({
       )}
 
       {/* Device Info */}
-      <Card>
+      <Card variant="glass">
         <CardHeader>
           <CardTitle>Device Info</CardTitle>
         </CardHeader>

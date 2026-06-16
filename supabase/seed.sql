@@ -19,7 +19,9 @@ INSERT INTO bins (id, organization_id, customer_id, device_id, serial_number, qr
   ('c0000000-0000-4000-8000-000000000003', 'a0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000002', 'SRTX-003', 'SN-2024-003', 'SRTX-003', 'two', 'offline', 27.4300, 89.4200, 'Library Block', '2024-08-01', NOW() - INTERVAL '2 hours', 30.0, 15, 'offline', 'ok', 'offline'),
   ('c0000000-0000-4000-8000-000000000004', 'a0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000002', 'SRTX-004', 'SN-2024-004', 'SRTX-004', 'four', 'maintenance', 27.4310, 89.4210, 'Cafeteria', '2024-09-10', NOW() - INTERVAL '30 minutes', 55.0, 60, 'error', 'degraded', 'online'),
   ('c0000000-0000-4000-8000-000000000005', 'a0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001', 'SRTX-005', 'SN-2024-005', 'SRTX-005', 'two', 'active', 27.4740, 89.6400, 'Parking Level B1', '2024-10-01', NOW() - INTERVAL '1 minute', 92.0, 95, 'ok', 'ok', 'online'),
-  ('c0000000-0000-4000-8000-000000000006', 'a0000000-0000-4000-8000-000000000001', NULL, 'SRTX-006', 'SN-2024-006', 'SRTX-006', 'four', 'active', 27.4750, 89.6410, 'Warehouse Staging', '2025-01-15', NOW() - INTERVAL '10 minutes', 25.0, 80, 'ok', 'ok', 'online')
+  ('c0000000-0000-4000-8000-000000000006', 'a0000000-0000-4000-8000-000000000001', NULL, 'SRTX-006', 'SN-2024-006', 'SRTX-006', 'four', 'active', 27.4750, 89.6410, 'Warehouse Staging', '2025-01-15', NOW() - INTERVAL '10 minutes', 25.0, 80, 'ok', 'ok', 'online'),
+  ('c0000000-0000-4000-8000-000000000007', 'a0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000002', 'SRTX-007', 'SN-2024-007', 'SRTX-007', 'three', 'active', 27.4320, 89.4220, 'Campus Food Court', '2025-03-01', NOW() - INTERVAL '3 minutes', 38.0, 82, 'ok', 'ok', 'online'),
+  ('c0000000-0000-4000-8000-000000000008', 'a0000000-0000-4000-8000-000000000001', NULL, 'SRTX-008', 'SN-2024-008', 'SRTX-008', 'one', 'active', 27.4760, 89.6420, 'Lobby Reception', '2025-05-01', NOW() - INTERVAL '1 minute', 55.0, 90, 'ok', 'ok', 'online')
 ON CONFLICT DO NOTHING;
 
 -- Compartments for 2-bin units
@@ -46,6 +48,18 @@ INSERT INTO bin_compartments (bin_id, compartment_index, label, current_fill_lev
   ('c0000000-0000-4000-8000-000000000006', 1, 'General', 30, 3.0, 25, '{"general": 25}'),
   ('c0000000-0000-4000-8000-000000000006', 2, 'Paper', 25, 2.5, 10, '{"paper": 10}'),
   ('c0000000-0000-4000-8000-000000000006', 3, 'Metal', 25, 3.0, 20, '{"metal": 20}')
+ON CONFLICT DO NOTHING;
+
+-- Compartments for 3-bin unit
+INSERT INTO bin_compartments (bin_id, compartment_index, label, current_fill_level, current_weight_kg, waste_count, classification) VALUES
+  ('c0000000-0000-4000-8000-000000000007', 0, 'Recyclable', 35, 4.5, 55, '{"plastic": 30, "paper": 25}'),
+  ('c0000000-0000-4000-8000-000000000007', 1, 'Non-Recyclable', 40, 5.0, 40, '{"general": 40}'),
+  ('c0000000-0000-4000-8000-000000000007', 2, 'Food Waste', 30, 8.0, 25, '{"organic": 25}')
+ON CONFLICT DO NOTHING;
+
+-- Compartments for 1-bin unit
+INSERT INTO bin_compartments (bin_id, compartment_index, label, current_fill_level, current_weight_kg, waste_count, classification) VALUES
+  ('c0000000-0000-4000-8000-000000000008', 0, 'Recyclable', 55, 12.0, 90, '{"plastic": 40, "paper": 35, "metal": 15}')
 ON CONFLICT DO NOTHING;
 
 -- Sample alerts
@@ -93,6 +107,62 @@ BEGIN
       jsonb_build_array(
         jsonb_build_object('index', 0, 'fillLevel', round((fill_val * 0.9)::numeric, 2)),
         jsonb_build_object('index', 1, 'fillLevel', round(fill_val::numeric, 2))
+      )
+    );
+  END LOOP;
+END $$;
+
+-- Generate 7 days of telemetry for SRTX-007 (3-bin)
+DO $$
+DECLARE
+  i INT;
+  ts TIMESTAMPTZ;
+  fill_val NUMERIC;
+BEGIN
+  FOR i IN 0..168 LOOP
+    ts := NOW() - (i || ' hours')::INTERVAL;
+    fill_val := 25 + (cos(i::float / 10) * 15 + random() * 10);
+    INSERT INTO telemetry_events (bin_id, organization_id, recorded_at, fill_level, weight_kg, waste_count, camera_status, sensor_health, internet_status, battery_percent, compartments)
+    VALUES (
+      'c0000000-0000-4000-8000-000000000007',
+      'a0000000-0000-4000-8000-000000000001',
+      ts,
+      fill_val,
+      fill_val * 0.25,
+      floor(random() * 8 + 2)::int,
+      'ok', 'ok', 'online',
+      80 + random() * 15,
+      jsonb_build_array(
+        jsonb_build_object('index', 0, 'fillLevel', round((fill_val * 0.85)::numeric, 2)),
+        jsonb_build_object('index', 1, 'fillLevel', round(fill_val::numeric, 2)),
+        jsonb_build_object('index', 2, 'fillLevel', round((fill_val * 0.7)::numeric, 2))
+      )
+    );
+  END LOOP;
+END $$;
+
+-- Generate 7 days of telemetry for SRTX-008 (1-bin)
+DO $$
+DECLARE
+  i INT;
+  ts TIMESTAMPTZ;
+  fill_val NUMERIC;
+BEGIN
+  FOR i IN 0..168 LOOP
+    ts := NOW() - (i || ' hours')::INTERVAL;
+    fill_val := 45 + (sin(i::float / 8) * 15 + random() * 8);
+    INSERT INTO telemetry_events (bin_id, organization_id, recorded_at, fill_level, weight_kg, waste_count, camera_status, sensor_health, internet_status, battery_percent, compartments)
+    VALUES (
+      'c0000000-0000-4000-8000-000000000008',
+      'a0000000-0000-4000-8000-000000000001',
+      ts,
+      fill_val,
+      fill_val * 0.3,
+      floor(random() * 5 + 1)::int,
+      'ok', 'ok', 'online',
+      85 + random() * 10,
+      jsonb_build_array(
+        jsonb_build_object('index', 0, 'fillLevel', round(fill_val::numeric, 2))
       )
     );
   END LOOP;

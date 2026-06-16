@@ -5,35 +5,22 @@ import type { BinMapMarker } from "@/components/maps/bin-map";
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  const { data: bins } = await supabase
-    .from("bins")
-    .select("id, device_id, latitude, longitude, status, latest_fill_level, location_name, customers(name)");
+  const [
+    { data: bins },
+    { count: authenticatedBins },
+    { count: alertCount },
+    { data: alerts },
+    { data: activity },
+  ] = await Promise.all([
+    supabase.from("bins").select("id, device_id, latitude, longitude, status, latest_fill_level, location_name, customers(name)"),
+    supabase.from("bins").select("*", { count: "exact", head: true }).not("api_key", "is", null),
+    supabase.from("alerts").select("*", { count: "exact", head: true }).is("resolved_at", null),
+    supabase.from("alerts").select("id, alert_type, severity, message, created_at, acknowledged_at, resolved_at, bins(device_id)").is("resolved_at", null).order("created_at", { ascending: false }).limit(5),
+    supabase.from("activity_log").select("id, action, details, created_at, bins(device_id)").order("created_at", { ascending: false }).limit(8),
+  ]);
 
   const fullBins = bins?.filter((b) => (b.latest_fill_level ?? 0) >= 85).length ?? 0;
   const offlineBins = (bins?.filter((b) => b.status === "offline" || b.status === "unregistered").length ?? 0);
-
-  const { count: authenticatedBins } = await supabase
-    .from("bins")
-    .select("*", { count: "exact", head: true })
-    .not("api_key", "is", null);
-
-  const { count: alertCount } = await supabase
-    .from("alerts")
-    .select("*", { count: "exact", head: true })
-    .is("resolved_at", null);
-
-  const { data: alerts } = await supabase
-    .from("alerts")
-    .select("id, alert_type, severity, message, created_at, acknowledged_at, resolved_at, bins(device_id)")
-    .is("resolved_at", null)
-    .order("created_at", { ascending: false })
-    .limit(5);
-
-  const { data: activity } = await supabase
-    .from("activity_log")
-    .select("id, action, details, created_at, bins(device_id)")
-    .order("created_at", { ascending: false })
-    .limit(8);
 
   const markers = (bins ?? []).map((b) => ({
     id: b.id,

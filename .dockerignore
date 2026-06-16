@@ -1,0 +1,8 @@
+.git
+node_modules
+dist
+.next
+*.local
+.DS_Store
+apps/web
+docker

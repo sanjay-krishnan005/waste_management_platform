@@ -41,7 +41,7 @@ export const USER_ROLES = [
 ] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
-export const BIN_TYPES = ["two", "four"] as const;
+export const BIN_TYPES = ["one", "two", "three", "four"] as const;
 export type BinType = (typeof BIN_TYPES)[number];
 
 export const BIN_STATUSES = [

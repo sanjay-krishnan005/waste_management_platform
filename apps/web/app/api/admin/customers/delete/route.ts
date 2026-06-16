@@ -46,7 +46,19 @@ export async function POST(request: NextRequest) {
     try { await service.from("profiles").delete().eq("id", p.id); } catch {}
   }
 
-  const { error } = await service.from("customers").delete().eq("id", id);
+  const { data: customerBins } = await service
+    .from("bins")
+    .select("id, device_id")
+    .eq("customer_id", id);
+  for (const b of customerBins ?? []) {
+    await service.from("activity_log").insert({
+      organization_id: customer.organization_id,
+      user_id: user.id,
+      action: "bin_deleted",
+      details: { device_id: b.device_id, reason: "customer_deleted" },
+    });
+  }
+  const { error } = await service.from("bins").delete().eq("customer_id", id);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }

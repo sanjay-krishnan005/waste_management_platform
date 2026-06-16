@@ -232,7 +232,8 @@ async function checkOfflineBins() {
   const { data: bins } = await supabase
     .from("bins")
     .select("id, organization_id, device_id")
-    .eq("status", "active");
+    .eq("status", "active")
+    .lt("last_seen_at", threshold);
 
   for (const bin of bins ?? []) {
     if (!shouldCreateAlert(bin.id, "offline")) continue;
@@ -242,8 +243,10 @@ async function checkOfflineBins() {
       bin_id: bin.id,
       alert_type: "offline",
       severity: "critical",
-      message: `Bin ${bin.device_id} may be offline`,
+      message: `Bin ${bin.device_id} has been offline for over ${OFFLINE_THRESHOLD_MS / 60000} minutes`,
     });
+
+    await supabase.from("bins").update({ status: "offline" }).eq("id", bin.id);
   }
 }
 

@@ -20,7 +20,9 @@ import QRCode from "qrcode";
 const LocationPicker = dynamic(() => import("./location-picker"), { ssr: false });
 
 const COMPARTMENT_LABELS: Record<string, string[]> = {
+  one: ["Recyclable"],
   two: ["Recyclable", "Non-Recyclable"],
+  three: ["Recyclable", "Non-Recyclable", "Food Waste"],
   four: ["Plastic", "General", "Paper", "Metal"],
 };
 
@@ -39,7 +41,7 @@ export function BinForm({
   const isEdit = Boolean(initial?.id);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [binType, setBinType] = useState<"two" | "four">((initial?.bin_type as "two" | "four") ?? "two");
+  const [binType, setBinType] = useState<"one" | "two" | "three" | "four">((initial?.bin_type as "one" | "two" | "three" | "four") ?? "two");
   const [lat, setLat] = useState((initial?.latitude as number) ?? 27.4728);
   const [lng, setLng] = useState((initial?.longitude as number) ?? 89.639);
   const [deviceId, setDeviceId] = useState((initial?.device_id as string) ?? "");
@@ -153,12 +155,14 @@ export function BinForm({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Bin type</Label>
-              <Select value={binType} onValueChange={(v) => setBinType(v as "two" | "four")}>
+              <Select value={binType} onValueChange={(v) => setBinType(v as "one" | "two" | "three" | "four")}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="one">1-bin (Recyclable)</SelectItem>
                   <SelectItem value="two">2-bin</SelectItem>
+                  <SelectItem value="three">3-bin</SelectItem>
                   <SelectItem value="four">4-bin</SelectItem>
                 </SelectContent>
               </Select>
