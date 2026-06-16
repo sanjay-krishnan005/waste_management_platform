@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import pino from "pino";
 import { createServer } from "http";
 import { telemetryPayloadSchema } from "@sortyx/shared";
+import WebSocket from "ws";
 
 type AlertType =
   | "full_bin"
@@ -23,7 +24,12 @@ const log = pino({
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    realtime: {
+      transport: WebSocket,
+    },
+  }
 );
 
 const DEDUPE_MINUTES = 15;
