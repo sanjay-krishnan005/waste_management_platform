@@ -98,12 +98,12 @@ export function BinListClient({
     const existing = compartmentsByBin[bin.id] ?? [];
     if (existing.length > 0) return existing;
     const labels = bin.bin_type === "four"
-      ? ["Plastic", "Paper", "Metal/Glass", "Organic"]
+      ? ["Plastic", "General", "Paper", "Metal"]
       : bin.bin_type === "three"
       ? ["Recyclable", "Non-Recyclable", "Food Waste"]
       : bin.bin_type === "one"
       ? ["Recyclable"]
-      : ["Recyclables", "General Waste"];
+      : ["Recyclable", "Non-Recyclable"];
     return labels.map((label, i) => ({
       label,
       compartment_index: i,
@@ -266,8 +266,8 @@ export function BinListClient({
           })}
         </div>
       ) : (
-        <div className="rounded-lg border overflow-hidden card-shadow">
-          <table className="w-full">
+        <div className="rounded-lg border overflow-x-auto card-shadow">
+          <table className="w-full min-w-[640px]">
             <thead>
               <tr className="border-b bg-muted/30 text-left text-xs font-medium text-muted-foreground">
                 <th className="px-4 py-3">Device ID</th>

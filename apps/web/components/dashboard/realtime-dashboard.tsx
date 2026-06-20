@@ -329,10 +329,10 @@ export function RealtimeDashboard({
       {/* KPI Cards */}
       <KpiCards data={kpis} />
 
-      {/* Map + Recent Activity side by side */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Map */}
-        <Card variant="glass" className="lg:col-span-2 overflow-hidden flex flex-col">
+      {/* Bento Grid: Map + Activity + Bins by Customer */}
+      <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-4">
+        {/* Map - spans 2 cols */}
+        <Card variant="glass" className="md:col-span-2 lg:col-span-3 overflow-hidden flex flex-col min-h-[420px] md:min-h-0">
           <CardHeader className="flex flex-row items-center justify-between pb-3 shrink-0">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -342,7 +342,7 @@ export function RealtimeDashboard({
               {bins.length} bin{bins.length !== 1 ? "s" : ""}
             </Badge>
           </CardHeader>
-          <div className="relative flex-1 min-h-[360px]">
+          <div className="relative flex-1 min-h-[300px] md:min-h-[360px]">
             {bins.length === 0 ? (
               <div className="absolute inset-0 flex items-center justify-center bg-muted/20">
                 <div className="text-center">
@@ -359,8 +359,8 @@ export function RealtimeDashboard({
           </div>
         </Card>
 
-        {/* Recent Activity */}
-        <Card variant="glass" className="flex flex-col overflow-hidden">
+        {/* Recent Activity - spans 1 col */}
+        <Card variant="glass" className="flex flex-col overflow-hidden md:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between pb-3 shrink-0">
             <div className="flex items-center gap-2">
               <ActivityIcon className="h-4 w-4 text-muted-foreground" />
@@ -378,15 +378,12 @@ export function RealtimeDashboard({
                   const binDeviceId = Array.isArray(a.bins) ? a.bins[0]?.device_id : a.bins?.device_id;
                   return (
                     <div key={a.id} className="relative flex gap-3 pb-5 last:pb-2">
-                      {/* Timeline line */}
                       {i < activity.length - 1 && (
                         <div className="absolute left-[11px] top-6 bottom-0 w-px bg-border" />
                       )}
-                      {/* Timeline dot */}
                       <div className="relative z-10 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-primary/20 bg-background">
                         <div className="h-2 w-2 rounded-full bg-primary/60" />
                       </div>
-                      {/* Content */}
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium capitalize">{a.action.replace(/_/g, " ")}</p>
                         {binDeviceId && (
@@ -401,45 +398,45 @@ export function RealtimeDashboard({
             )}
           </CardContent>
         </Card>
-      </div>
 
-      {/* Bins by Customer */}
-      <Card variant="glass">
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-muted-foreground" />
-            <CardTitle>Bins by Customer</CardTitle>
-          </div>
-          <Badge variant="neutral" className="text-[11px] font-normal">
-            {binsByCustomer.length} customer{binsByCustomer.length !== 1 ? "s" : ""}
-          </Badge>
-        </CardHeader>
-        <CardContent>
-          {binsByCustomer.length === 0 ? (
-            <EmptyState icon={Trash2} title="No bins deployed" description="Assign bins to customers to see them here" className="py-8" />
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {binsByCustomer.map((c) => (
-                <div key={c.name} className="rounded-lg border p-3 transition-colors hover:bg-accent/30">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">{c.name}</span>
-                    <Badge variant="secondary" className="text-[10px]">
-                      {c.bins.length} bin{c.bins.length !== 1 ? "s" : ""}
-                    </Badge>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {c.bins.map((deviceId) => (
-                      <Badge key={deviceId} variant="outline" className="text-[10px] font-mono">
-                        {deviceId}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              ))}
+        {/* Bins by Customer - full width */}
+        <Card variant="glass" className="md:col-span-3 lg:col-span-4">
+          <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              <CardTitle>Bins by Customer</CardTitle>
             </div>
-          )}
-        </CardContent>
-      </Card>
+            <Badge variant="neutral" className="text-[11px] font-normal">
+              {binsByCustomer.length} customer{binsByCustomer.length !== 1 ? "s" : ""}
+            </Badge>
+          </CardHeader>
+          <CardContent>
+            {binsByCustomer.length === 0 ? (
+              <EmptyState icon={Trash2} title="No bins deployed" description="Assign bins to customers to see them here" className="py-8" />
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {binsByCustomer.map((c) => (
+                  <div key={c.name} className="rounded-lg border p-3 transition-colors hover:bg-accent/30">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">{c.name}</span>
+                      <Badge variant="secondary" className="text-[10px]">
+                        {c.bins.length} bin{c.bins.length !== 1 ? "s" : ""}
+                      </Badge>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {c.bins.map((deviceId) => (
+                        <Badge key={deviceId} variant="outline" className="text-[10px] font-mono">
+                          {deviceId}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

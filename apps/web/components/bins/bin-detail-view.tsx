@@ -11,9 +11,8 @@ import { formatPercent, formatDate, formatRelativeTime, cn } from "@/lib/utils";
 import { BinCompartmentPieChart } from "./bin-compartment-pie-chart";
 import { BinCredentials } from "./bin-credentials";
 import { DeleteButton } from "@/components/ui/delete-button";
+import { canManageBins } from "@/lib/auth/rbac";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -31,13 +30,9 @@ import {
   Layers,
   KeyRound,
   BarChart3,
-  MapPin,
   Clock,
   Trash2,
-  ExternalLink,
   ChevronRight,
-  Circle,
-  AlertTriangle,
   CheckCircle2,
   XCircle,
 } from "lucide-react";
@@ -201,7 +196,7 @@ export function BinDetailView({
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
               {b.location_name ?? "No location set"}
-              {b.latitude && b.longitude && (
+              {b.latitude != null && b.longitude != null && (
                 <span className="ml-2 text-xs font-mono">
                   ({b.latitude.toFixed(4)}, {b.longitude.toFixed(4)})
                 </span>
@@ -210,7 +205,7 @@ export function BinDetailView({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {role !== "customer" && (
+          {canManageBins(role) && (
             <>
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/bins/${bin.id}/edit`}>
@@ -362,7 +357,7 @@ export function BinDetailView({
             <CardTitle>Camera Snapshot</CardTitle>
           </CardHeader>
           <CardContent>
-            <img src={b.snapshot_url} alt="Bin snapshot" className="rounded-lg max-h-80 object-cover shadow-sm" />
+            <img src={b.snapshot_url} alt="Bin snapshot" loading="lazy" className="rounded-lg max-h-80 object-cover shadow-sm" />
           </CardContent>
         </Card>
       )}
@@ -395,7 +390,7 @@ export function BinDetailView({
       </Card>
 
       {/* Credentials (admin only) */}
-      {role !== "customer" && (
+      {canManageBins(role) && (
         <BinCredentials binId={b.id} />
       )}
     </div>

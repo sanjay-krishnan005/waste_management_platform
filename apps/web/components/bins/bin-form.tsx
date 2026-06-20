@@ -149,7 +149,7 @@ export function BinForm({
             </div>
             <div className="space-y-2">
               <Label>Serial number</Label>
-              <Input value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} required />
+              <Input value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} required placeholder="SN-XXXX-0001" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">

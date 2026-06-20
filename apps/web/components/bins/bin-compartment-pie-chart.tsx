@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Layers } from "lucide-react";
 import {
@@ -24,74 +23,6 @@ interface BinCompartmentPieChartProps {
   binName: string;
 }
 
-const COLORS = ["#6C2BD9", "#10b981", "#f59e0b", "#ef4444"];
-
-function PieLabel({
-  cx,
-  cy,
-  midAngle,
-  innerRadius,
-  outerRadius,
-  value,
-  name,
-}: {
-  cx: number;
-  cy: number;
-  midAngle: number;
-  innerRadius: number;
-  outerRadius: number;
-  value: number;
-  name: string;
-}) {
-  const RADIAN = Math.PI / 180;
-  const radius = outerRadius + 28;
-  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  const y = cy + radius * Math.sin(-midAngle * RADIAN);
-  const textAnchor = x > cx ? "start" : "end";
-
-  return (
-    <g>
-      <line
-        x1={cx + (innerRadius + (outerRadius - innerRadius) / 2) * Math.cos(-midAngle * RADIAN)}
-        y1={cy + (innerRadius + (outerRadius - innerRadius) / 2) * Math.sin(-midAngle * RADIAN)}
-        x2={cx + (outerRadius + 10) * Math.cos(-midAngle * RADIAN)}
-        y2={cy + (outerRadius + 10) * Math.sin(-midAngle * RADIAN)}
-        stroke="#888"
-        strokeWidth={1}
-        strokeOpacity={0.4}
-      />
-      <line
-        x1={cx + (outerRadius + 10) * Math.cos(-midAngle * RADIAN)}
-        y1={cy + (outerRadius + 10) * Math.sin(-midAngle * RADIAN)}
-        x2={cx + (outerRadius + 24) * Math.cos(-midAngle * RADIAN)}
-        y2={cy + (outerRadius + 24) * Math.sin(-midAngle * RADIAN)}
-        stroke="#888"
-        strokeWidth={1}
-        strokeOpacity={0.4}
-      />
-      <text
-        x={x}
-        y={y - 6}
-        textAnchor={textAnchor}
-        fill="hsl(var(--foreground))"
-        fontSize={11}
-        fontWeight={500}
-      >
-        {name}
-      </text>
-      <text
-        x={x}
-        y={y + 10}
-        textAnchor={textAnchor}
-        fill="hsl(var(--muted-foreground))"
-        fontSize={10}
-      >
-        {`${value}%`}
-      </text>
-    </g>
-  );
-}
-
 function getFillColor(fill: number) {
   if (fill >= 85) return "bg-red-500";
   if (fill >= 60) return "bg-amber-500";
@@ -102,6 +33,51 @@ function getFillHex(fill: number) {
   if (fill >= 85) return "#ef4444";
   if (fill >= 60) return "#f59e0b";
   return "#6C2BD9";
+}
+
+function DonutGauge({ value, label, color, size = 140 }: { value: number; label: string; color: string; size?: number }) {
+  const padded = Math.min(value, 100);
+  const empty = 100 - padded;
+  const data = [
+    { name: label, value: padded, fill: color },
+    { name: "empty", value: empty, fill: "hsl(var(--border))" },
+  ];
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div style={{ width: size, height: size }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              innerRadius={size * 0.35}
+              outerRadius={size * 0.48}
+              startAngle={90}
+              endAngle={-270}
+              dataKey="value"
+              strokeWidth={0}
+              isAnimationActive={false}
+            >
+              <Cell fill={color} />
+              <Cell fill="hsl(var(--border))" opacity={0.35} />
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+          style={{ width: size, height: size }}
+        >
+          <span className={cn("text-xl font-bold", value >= 60 ? "text-white" : "")}>
+            {Math.round(value * 10) / 10}%
+          </span>
+          <span className="text-[10px] text-muted-foreground mt-0.5">fill</span>
+        </div>
+      </div>
+      <p className="text-xs font-medium text-center leading-tight">{label}</p>
+    </div>
+  );
 }
 
 export function BinCompartmentPieChart({
@@ -120,7 +96,6 @@ export function BinCompartmentPieChart({
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      {/* Pie Chart */}
       <Card variant="glass">
         <CardHeader>
           <CardTitle>Fill Levels</CardTitle>
@@ -134,50 +109,29 @@ export function BinCompartmentPieChart({
         </CardHeader>
         <CardContent>
           {hasData ? (
-            <>
-              <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={chartData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={55}
-                      outerRadius={85}
-                      paddingAngle={3}
-                      dataKey="value"
-                      strokeWidth={0}
-                      label={({ cx, cy, midAngle, innerRadius, outerRadius, value, name }) => (
-                        <PieLabel
-                          cx={cx}
-                          cy={cy}
-                          midAngle={midAngle}
-                          innerRadius={innerRadius}
-                          outerRadius={outerRadius}
-                          value={value}
-                          name={name}
-                        />
-                      )}
-                      labelLine={false}
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              {/* Legend */}
-              <div className="flex flex-wrap items-center justify-center gap-4 mt-2">
-                {chartData.map((item, i) => (
-                  <div key={i} className="flex items-center gap-1.5">
-                    <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.fill }} />
-                    <span className="text-xs text-muted-foreground">{item.name}</span>
-                    <span className="text-xs font-medium tabular-nums">{item.value}%</span>
+            <div className={cn(
+              "flex flex-wrap items-center justify-center gap-6 py-4",
+              compartments.length <= 2 ? "sm:gap-10" : "sm:gap-8"
+            )}>
+              {compartments.map((comp) => {
+                const fill = comp.currentFillLevel;
+                return (
+                  <div key={comp.id} className="relative">
+                    <DonutGauge
+                      value={fill}
+                      label={comp.label}
+                      color={getFillHex(fill)}
+                      size={140}
+                    />
+                    {comp.wasteCount != null && comp.wasteCount > 0 && (
+                      <p className="text-[11px] text-muted-foreground text-center mt-1">
+                        {comp.wasteCount} item{comp.wasteCount !== 1 ? "s" : ""}
+                      </p>
+                    )}
                   </div>
-                ))}
-              </div>
-            </>
+                );
+              })}
+            </div>
           ) : (
             <div className="flex flex-col items-center py-14 text-center">
               <div className="mb-3 rounded-xl bg-muted p-3 inline-block">
@@ -192,7 +146,6 @@ export function BinCompartmentPieChart({
         </CardContent>
       </Card>
 
-      {/* Individual Vertical Bins */}
       <Card variant="glass">
         <CardHeader>
           <CardTitle>Compartment Breakdown</CardTitle>
@@ -207,9 +160,7 @@ export function BinCompartmentPieChart({
                 const colorClass = getFillColor(fill);
                 return (
                   <div key={comp.id} className="flex flex-col items-center gap-3">
-                    {/* Individual bin container */}
                     <div className="relative w-full max-w-[100px] h-52 rounded-lg border-2 border-border bg-muted/20 overflow-hidden">
-                      {/* Fill level */}
                       <div
                         className="absolute bottom-0 left-0 right-0 transition-all duration-700 ease-out"
                         style={{
@@ -218,23 +169,19 @@ export function BinCompartmentPieChart({
                           opacity: 0.7,
                         }}
                       >
-                        {/* Ripple effect at top of fill */}
                         <div className="absolute top-0 left-0 right-0 h-2" style={{ backgroundColor: color, opacity: 0.3 }} />
                       </div>
-                      {/* 25% marker lines */}
                       <div className="absolute inset-0 pointer-events-none">
                         <div className="absolute top-1/4 left-0 right-0 border-t border-dashed border-border/30" />
                         <div className="absolute top-2/4 left-0 right-0 border-t border-dashed border-border/30" />
                         <div className="absolute top-3/4 left-0 right-0 border-t border-dashed border-border/30" />
                       </div>
-                      {/* Center percentage */}
                       <div className="absolute inset-0 flex items-center justify-center">
                         <span className="text-lg font-bold drop-shadow-sm" style={{ color: fill >= 60 ? "#fff" : "hsl(var(--foreground))" }}>
                           {Math.round(fill * 10) / 10}%
                         </span>
                       </div>
                     </div>
-                    {/* Label */}
                     <div className="text-center">
                       <p className="text-sm font-medium">{comp.label}</p>
                       {comp.wasteCount && comp.wasteCount > 0 && (
@@ -242,7 +189,6 @@ export function BinCompartmentPieChart({
                           {comp.wasteCount} item{comp.wasteCount !== 1 ? "s" : ""}
                         </p>
                       )}
-                      {/* Mini fill bar */}
                       <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden mx-auto max-w-[80px]">
                         <div
                           className={cn("h-full rounded-full transition-all duration-500", colorClass)}
