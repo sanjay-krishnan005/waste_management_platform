@@ -3,8 +3,9 @@ import mqtt from "mqtt";
 import { createClient } from "@supabase/supabase-js";
 import pino from "pino";
 import { createServer } from "http";
-import { telemetryPayloadSchema } from "@sortyx/shared";
+import { telemetryPayloadSchema, type TelemetryPayload } from "@sortyx/shared";
 import WebSocket from "ws";
+import { startTtnClient } from "./ttn-mqtt.js";
 
 type AlertType =
   | "full_bin"
@@ -72,7 +73,10 @@ async function processTelemetry(topic: string, payload: Buffer) {
     return;
   }
 
-  const data = result.data;
+  await processTelemetryPayload(result.data);
+}
+
+export async function processTelemetryPayload(data: TelemetryPayload) {
   const recordedAt = data.timestamp ?? new Date().toISOString();
 
   const { data: bin, error: binError } = await supabase
@@ -86,7 +90,6 @@ async function processTelemetry(topic: string, payload: Buffer) {
     return;
   }
 
-  // Validate API key if the bin has credentials configured
   if (bin.api_key) {
     if (!data.apiKey || data.apiKey !== bin.api_key) {
       log.warn({ deviceId: data.deviceId }, "Invalid API key - rejecting telemetry");
@@ -94,13 +97,13 @@ async function processTelemetry(topic: string, payload: Buffer) {
     }
   }
 
-  const maxFill = Math.max(...data.compartments.map((c: { fillLevel: number }) => c.fillLevel));
+  const maxFill = Math.max(...data.compartments.map((c) => c.fillLevel));
   const totalWeight = data.compartments.reduce(
-    (sum: number, c: { weightKg?: number }) => sum + (c.weightKg ?? 0),
+    (sum, c) => sum + (c.weightKg ?? 0),
     0
   );
   const totalWaste = data.compartments.reduce(
-    (sum: number, c: { wasteCount?: number }) => sum + (c.wasteCount ?? 0),
+    (sum, c) => sum + (c.wasteCount ?? 0),
     0
   );
 
@@ -260,32 +263,32 @@ const mqttUrl = process.env.MQTT_URL ?? "mqtt://localhost:1883";
 const telemetryTopic =
   process.env.MQTT_TOPIC_TELEMETRY ?? "sortyx/bins/+/telemetry";
 
-const client = mqtt.connect(mqttUrl, {
+const hiveClient = mqtt.connect(mqttUrl, {
   username: process.env.MQTT_USER || undefined,
   password: process.env.MQTT_PASS || undefined,
   reconnectPeriod: 5000,
 });
 
-client.on("connect", () => {
-  log.info("Connected to MQTT broker");
+hiveClient.on("connect", () => {
+  log.info("Connected to HiveMQ MQTT broker");
 
-  client.subscribe(telemetryTopic, (err) => {
+  hiveClient.subscribe(telemetryTopic, (err) => {
     if (err) {
-      log.error(err, "Subscribe failed");
+      log.error(err, "HiveMQ subscribe failed");
     } else {
-      log.info({ topic: telemetryTopic }, "Subscribed");
+      log.info({ topic: telemetryTopic }, "HiveMQ subscribed");
     }
   });
 });
 
-client.on("message", (topic, payload) => {
+hiveClient.on("message", (topic, payload) => {
   processTelemetry(topic, payload).catch((err) =>
-    log.error(err, "Processing failed")
+    log.error(err, "HiveMQ processing failed")
   );
 });
 
-client.on("error", (err) => {
-  log.error(err, "MQTT error");
+hiveClient.on("error", (err) => {
+  log.error(err, "HiveMQ MQTT error");
 });
 
 setInterval(() => {
@@ -293,6 +296,12 @@ setInterval(() => {
     log.error(err, "Offline check failed")
   );
 }, 60000);
+
+let ttnClient: mqtt.MqttClient | null = null;
+
+startTtnClient(processTelemetryPayload).then((client) => {
+  ttnClient = client;
+});
 
 const port = parseInt(process.env.PORT ?? "8080", 10);
 
@@ -305,7 +314,8 @@ createServer((req, res) => {
     res.end(
       JSON.stringify({
         status: "ok",
-        mqtt: client.connected,
+        mqtt: hiveClient.connected,
+        ttn: ttnClient?.connected ?? false,
       })
     );
     return;

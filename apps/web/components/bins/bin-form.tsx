@@ -51,6 +51,7 @@ export function BinForm({
   const [deploymentDate, setDeploymentDate] = useState(
     ((initial?.deployment_date as string) ?? new Date().toISOString().split("T")[0])
   );
+  const [binHeight, setBinHeight] = useState<number>((initial?.bin_height as number) ?? 100);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -67,6 +68,7 @@ export function BinForm({
       longitude: lng,
       location_name: locationName,
       deployment_date: deploymentDate,
+      bin_height: binHeight,
     };
 
     if (isEdit) {
@@ -189,6 +191,11 @@ export function BinForm({
           <div className="space-y-2">
             <Label>Deployment date</Label>
             <Input type="date" value={deploymentDate} onChange={(e) => setDeploymentDate(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label>Bin height (cm)</Label>
+            <Input type="number" min="1" max="500" value={binHeight} onChange={(e) => setBinHeight(Number(e.target.value))} required />
+            <p className="text-xs text-muted-foreground">Used to calculate fill level from distance sensors (e.g., TTN LoRaWAN)</p>
           </div>
           <div className="space-y-2">
             <Label>GPS location</Label>

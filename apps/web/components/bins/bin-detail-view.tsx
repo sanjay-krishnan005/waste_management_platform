@@ -116,6 +116,7 @@ export function BinDetailView({
     serial_number: string;
     deployment_date: string;
     customer_id: string;
+    bin_height: number;
   };
 
   const cfg = statusConfig[b.status] ?? { label: b.status, variant: "neutral" as const };
@@ -384,6 +385,10 @@ export function BinDetailView({
             <div>
               <dt className="text-xs text-muted-foreground">Deployed</dt>
               <dd className="mt-0.5">{b.deployment_date ? formatDate(b.deployment_date) : "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-muted-foreground">Bin Height</dt>
+              <dd className="mt-0.5">{b.bin_height ?? 100} cm</dd>
             </div>
           </dl>
         </CardContent>
