@@ -81,7 +81,7 @@ export async function processTelemetryPayload(data: TelemetryPayload) {
 
   const { data: bin, error: binError } = await supabase
     .from("bins")
-    .select("id, organization_id, device_id, api_key")
+    .select("id, organization_id, device_id, api_key, customer_id")
     .eq("device_id", data.deviceId)
     .single();
 
@@ -219,7 +219,7 @@ export async function processTelemetryPayload(data: TelemetryPayload) {
   }
 
   if (alertsToCreate.length > 0) {
-    await supabase.from("alerts").insert(
+    const { data: insertedAlerts } = await supabase.from("alerts").insert(
       alertsToCreate.map((a) => ({
         organization_id: bin.organization_id,
         bin_id: bin.id,
@@ -227,10 +227,93 @@ export async function processTelemetryPayload(data: TelemetryPayload) {
         severity: a.severity,
         message: a.message,
       }))
-    );
+    ).select("id, alert_type, severity, message");
+
+    if (insertedAlerts && insertedAlerts.length > 0) {
+      sendNotifications(bin.organization_id, bin.customer_id, insertedAlerts).catch((err) =>
+        log.error(err, "Notification sending failed")
+      );
+    }
   }
 
   log.info({ deviceId: data.deviceId }, "Telemetry processed");
+}
+
+async function sendNotifications(
+  organizationId: string,
+  customerId: string | null,
+  alerts: { alert_type: string; severity: string; message: string }[]
+) {
+  const { data: admins } = await supabase
+    .from("profiles")
+    .select("email, telegram_chat_id, notify_email, notify_telegram")
+    .eq("organization_id", organizationId)
+    .eq("role", "admin");
+
+  const { data: customer } = customerId
+    ? await supabase
+        .from("profiles")
+        .select("email, telegram_chat_id, notify_email, notify_telegram")
+        .eq("customer_id", customerId)
+        .single()
+    : { data: null };
+
+  const recipients = [...(admins ?? [])];
+  if (customer) recipients.push(customer);
+
+  if (recipients.length === 0) return;
+
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+  const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+  const FROM_EMAIL = process.env.FROM_EMAIL ?? "Sortyx <noreply@sortyx.com>";
+
+  for (const alert of alerts) {
+    const severity = (alert.severity ?? "medium").toUpperCase();
+    const text = alert.message;
+
+    for (const user of recipients) {
+      if (user.notify_email && user.email && RESEND_API_KEY) {
+        try {
+          const res = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: FROM_EMAIL,
+              to: user.email,
+              subject: `Sortyx Alert — ${severity}: ${text}`,
+              text,
+            }),
+          });
+          if (!res.ok) log.warn({ email: user.email, status: res.status }, "Email send failed");
+        } catch (err) {
+          log.error({ email: user.email, err }, "Email send error");
+        }
+      }
+
+      if (user.notify_telegram && user.telegram_chat_id && TELEGRAM_BOT_TOKEN) {
+        try {
+          const res = await fetch(
+            `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                chat_id: user.telegram_chat_id,
+                text: `⚠️ *${severity}* — ${text}`,
+                parse_mode: "Markdown",
+              }),
+            }
+          );
+          if (!res.ok) log.warn({ telegram: user.telegram_chat_id, status: res.status }, "Telegram send failed");
+        } catch (err) {
+          log.error({ telegram: user.telegram_chat_id, err }, "Telegram send error");
+        }
+      }
+    }
+  }
 }
 
 async function checkOfflineBins() {
