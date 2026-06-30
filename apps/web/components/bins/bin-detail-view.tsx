@@ -321,34 +321,58 @@ export function BinDetailView({
 
       {/* Compartment Pie Chart + Breakdown */}
       <BinCompartmentPieChart
-        compartments={displayCompartments.map((c) => ({ id: c.id, label: c.label, currentFillLevel: c.current_fill_level, compartmentIndex: c.compartment_index, wasteCount: c.waste_count }))}
+        compartments={displayCompartments.map((c) => ({ id: c.id, label: c.label, currentFillLevel: c.current_fill_level, compartmentIndex: c.compartment_index, wasteCount: c.waste_count, weightKg: c.current_weight_kg }))}
         binName={b.device_id}
       />
 
-      {/* Waste Count */}
+      {/* Waste Count + Weight */}
       {displayCompartments.length > 0 && (
-        <Card variant="glass">
-          <CardHeader>
-            <CardTitle>Waste Count</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {displayCompartments.map((c) => {
-                const fill = c.current_fill_level;
-                return (
-                  <div key={c.id} className="flex items-center gap-3 rounded-lg border p-3">
-                    <div className={cn("h-2.5 w-2.5 rounded-full shrink-0", fill >= 85 ? "bg-red-500" : fill >= 60 ? "bg-amber-500" : "bg-primary")} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-muted-foreground truncate">{c.label}</p>
-                      <p className="text-lg font-bold">{c.waste_count}</p>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card variant="glass">
+            <CardHeader>
+              <CardTitle>Waste Count</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {displayCompartments.map((c) => {
+                  const fill = c.current_fill_level;
+                  return (
+                    <div key={c.id} className="flex items-center gap-3 rounded-lg border p-3">
+                      <div className={cn("h-2.5 w-2.5 rounded-full shrink-0", fill >= 85 ? "bg-red-500" : fill >= 60 ? "bg-amber-500" : "bg-primary")} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-muted-foreground truncate">{c.label}</p>
+                        <p className="text-lg font-bold">{c.waste_count}</p>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">items</span>
                     </div>
-                    <span className="text-[10px] text-muted-foreground">items</span>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+          <Card variant="glass">
+            <CardHeader>
+              <CardTitle>Weight</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {displayCompartments.map((c) => {
+                  const fill = c.current_fill_level;
+                  return (
+                    <div key={c.id} className="flex items-center gap-3 rounded-lg border p-3">
+                      <div className={cn("h-2.5 w-2.5 rounded-full shrink-0", fill >= 85 ? "bg-red-500" : fill >= 60 ? "bg-amber-500" : "bg-primary")} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-muted-foreground truncate">{c.label}</p>
+                        <p className="text-lg font-bold">{c.current_weight_kg}</p>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">kg</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* Camera Snapshot */}

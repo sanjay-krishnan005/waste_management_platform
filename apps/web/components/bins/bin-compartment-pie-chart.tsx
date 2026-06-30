@@ -16,6 +16,7 @@ interface Compartment {
   currentFillLevel: number;
   compartmentIndex: number;
   wasteCount?: number;
+  weightKg?: number;
 }
 
 interface BinCompartmentPieChartProps {
@@ -128,6 +129,11 @@ export function BinCompartmentPieChart({
                         {comp.wasteCount} item{comp.wasteCount !== 1 ? "s" : ""}
                       </p>
                     )}
+                    {comp.weightKg != null && comp.weightKg > 0 && (
+                      <p className="text-[11px] text-muted-foreground text-center mt-1">
+                        {comp.weightKg} kg
+                      </p>
+                    )}
                   </div>
                 );
               })}
@@ -187,6 +193,11 @@ export function BinCompartmentPieChart({
                       {comp.wasteCount && comp.wasteCount > 0 && (
                         <p className="text-[11px] text-muted-foreground mt-0.5">
                           {comp.wasteCount} item{comp.wasteCount !== 1 ? "s" : ""}
+                        </p>
+                      )}
+                      {comp.weightKg != null && comp.weightKg > 0 && (
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                          {comp.weightKg} kg
                         </p>
                       )}
                       <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden mx-auto max-w-[80px]">
