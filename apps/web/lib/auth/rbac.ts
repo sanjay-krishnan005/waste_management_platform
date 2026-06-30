@@ -30,4 +30,7 @@ export type Profile = {
   organization_id: string | null;
   customer_id: string | null;
   fcm_token: string | null;
+  notify_email: boolean;
+  notify_telegram: boolean;
+  telegram_chat_id: string | null;
 };

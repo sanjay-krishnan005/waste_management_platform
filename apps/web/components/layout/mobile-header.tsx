@@ -16,6 +16,7 @@ import {
   Users,
   ShieldCheck,
   BookOpen,
+  Settings,
   LogOut,
   Menu,
 } from "lucide-react";
@@ -34,12 +35,14 @@ const adminNav: NavItem[] = [
   { href: "/reports", label: "Reports", icon: FileText },
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/manual", label: "Manual", icon: BookOpen },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 const customerNav: NavItem[] = [
   { href: "/portal", label: "Dashboard", icon: LayoutDashboard },
   { href: "/portal/bins", label: "My Bins", icon: Trash2 },
   { href: "/portal/reports", label: "Reports", icon: FileText },
+  { href: "/portal/settings", label: "Settings", icon: Settings },
 ];
 
 export function MobileHeader({ profile }: { profile: Profile }) {

@@ -25,6 +25,12 @@ export interface Database {
           role: "admin" | "customer";
           organization_id: string | null;
           customer_id: string | null;
+          full_name: string | null;
+          fcm_token: string | null;
+          phone: string | null;
+          telegram_chat_id: string | null;
+          notify_email: boolean;
+          notify_telegram: boolean;
         };
       };
     };

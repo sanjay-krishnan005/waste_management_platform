@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
@@ -29,14 +29,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const email = text.replace("/start", "").trim();
+  const email = text.replace("/start", "").trim().toLowerCase();
   if (!email) return NextResponse.json({ ok: true });
 
-  const supabase = await createClient();
+  const supabase = await createServiceClient();
   const { error } = await supabase
     .from("profiles")
     .update({ telegram_chat_id: chatId })
-    .eq("email", email);
+    .ilike("email", email);
 
   if (error) {
     return NextResponse.json({ ok: true });

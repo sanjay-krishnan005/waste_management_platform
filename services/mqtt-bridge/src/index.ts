@@ -330,15 +330,29 @@ async function checkOfflineBins() {
   for (const bin of bins ?? []) {
     if (!shouldCreateAlert(bin.id, "offline")) continue;
 
-    await supabase.from("alerts").insert({
+    const { data: insertedAlerts } = await supabase.from("alerts").insert({
       organization_id: bin.organization_id,
       bin_id: bin.id,
       alert_type: "offline",
       severity: "critical",
       message: `Bin ${bin.device_id} has been offline for over ${OFFLINE_THRESHOLD_MS / 60000} minutes`,
-    });
+    }).select("id, alert_type, severity, message");
 
     await supabase.from("bins").update({ status: "offline" }).eq("id", bin.id);
+
+    if (insertedAlerts && insertedAlerts.length > 0) {
+      const { data: binData } = await supabase
+        .from("bins")
+        .select("organization_id, customer_id")
+        .eq("id", bin.id)
+        .single();
+
+      if (binData) {
+        sendNotifications(binData.organization_id, binData.customer_id, insertedAlerts).catch((err) =>
+          log.error(err, "Offline notification failed")
+        );
+      }
+    }
   }
 }
 
