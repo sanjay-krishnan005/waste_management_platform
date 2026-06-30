@@ -23,12 +23,12 @@ export async function startTtnClient(
   }
 
   const brokerUrl = `mqtts://${TTN_BROKER}:${TTN_PORT}`;
-  const topic = `v3/${TTN_APP_ID}/devices/+/up`;
+  const topic = "#";
 
   log.info({ broker: brokerUrl, topic }, "Connecting to TTN MQTT");
 
   const client = mqtt.connect(brokerUrl, {
-    username: TTN_APP_ID,
+    username: `${TTN_APP_ID}@ttn`,
     password: TTN_API_KEY,
     reconnectPeriod: 5000,
     rejectUnauthorized: true,
@@ -37,11 +37,13 @@ export async function startTtnClient(
   client.on("connect", () => {
     log.info("Connected to TTN MQTT broker");
 
-    client.subscribe(topic, { qos: 1 }, (err) => {
+    client.subscribe(topic, { qos: 1 }, (err, granted) => {
+  console.log("GRANTED:", granted);
+
       if (err) {
-        log.error(err, "TTN subscribe failed");
+        console.error(err);
       } else {
-        log.info({ topic }, "TTN subscribed");
+        console.log("Subscribed");
       }
     });
   });
@@ -62,6 +64,11 @@ export async function startTtnClient(
 
   client.on("reconnect", () => {
     log.info("TTN MQTT reconnecting...");
+  });
+
+  client.on("message", (topic, payload) => {
+  console.log("TOPIC:", topic);
+  console.log("PAYLOAD:", payload.toString());
   });
 
   return client;
